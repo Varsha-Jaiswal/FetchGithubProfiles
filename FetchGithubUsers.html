@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  	<link rel="stylesheet" href="css/bootstrap.min.css">
+    <title>FetchGithubUsers</title>
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron text-center">
+            <button id="button1" class="btn btn-primary">
+                FetchGithubUsers
+            </button>
+            <button id="button2" class="btn btn-success">
+                Check Github Username
+            </button>
+        </div>
+        <div id="users"></div>
+    </div>    
+    
+	<script src="js/bootstrap.min.js"></script>    
+    <script>
+        document.getElementById('button1').addEventListener('click', loadUser);
+        function loadUser(activatedId){
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://api.github.com/users', true);
+            xhr.onload = function(){
+                if(this.status == 200){
+                    var users = JSON.parse(this.responseText);
+                    if(activatedId == "username"){
+                        var user_name = document.getElementById('username').value;
+                        for(var i=0; i < users.length; i++){
+                            if(users[i].login==user_name){
+                                document.getElementById('users').innerHTML += `
+                                <div style="display:flex;">
+                                <img src = ${users[i].avatar_url} width = "60" height = "80">
+                                ${JSON.stringify(users[i]).split(',').join('<br>')}
+                                </div>`
+                            }
+                        }
+                    }
+                    else{
+                        var users_data = '';
+                        for(var user in users){
+                            users_data +=
+                            `<div style="display:flex; background: #f4f4f4; padding:10px; margin-bottom: 10px"> 
+                            <img src = ${users[user].avatar_url} width = "60" height = "80">
+                            <ul style="list-style:square;">
+                            <li> ID: &nbsp;${users[user].id} </li>
+                            <li> Login:&nbsp; ${users[user].login} </li>
+                            <li> URL:&nbsp; ${users[user].html_url} </li>
+                            </ul>
+                            </div>`
+                        }
+                        document.getElementById('users').innerHTML = users_data;
+                    }
+                }
+            }
+            xhr.send();
+        }
+        document.getElementById('button2').addEventListener('click',openForm);
+        function openForm(){
+            var form = `
+            <div class = "jumbotron text-center">
+            <label>Enter Username: </label>
+            <input id = "username" type = "text" placeholder = "Enter Username"/>
+            <input id = "submit" type = "Submit" value = "Submit"/>
+            </div>`
+            document.getElementById('users').innerHTML = form;
+            document.getElementById('submit').addEventListener('click',showUser);
+        }
+        function showUser(){
+            loadUser("username");
+        }
+    </script>
+</body>
+</html>
